@@ -20,7 +20,7 @@
     - name: download frontend content
       ansible.builtin.get_url:
         url:  https://roboshop-builds.s3.amazonaws.com/web.zip
-        src: /tmp/web.zip
+        dest: /tmp/web.zip
 
     - name: Extract the frontend content
       ansible.builtin.unarchive:
