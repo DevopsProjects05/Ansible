@@ -9,7 +9,7 @@
 
     - name: Enable Node.js 18
       ansible.builtin.package:
-        name: nodejs-18
+        name: nodejs
         state: present
     
     - name: install Node js
