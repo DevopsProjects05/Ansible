@@ -1,0 +1,56 @@
+- name: cart
+  hosts: cart
+  become: yes
+  tasks:
+    - name: Disable nodejs
+      ansible.builtin.package:
+        name: nodejs
+        state: absent
+
+    - name: Enable Node.js 18
+      ansible.builtin.package:
+        name: nodejs-18
+        state: present
+    
+    - name: install Node js
+      ansible.builtin.package:
+        name: Node js
+        state: present
+
+    - name: adding roboshop user
+      ansible.builtin.user:
+        name: roboshop
+
+    - name: creating app directory
+      ansible.builtin.file:
+        path: /app
+
+    - name: Downloading application code
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/cart.zip
+        dest: /tmp/cart.zip
+
+    - name: unzipping application
+      ansible.builtin.unarchive:
+       src: /tmp/cart.zip
+       dest: /app
+
+    - name: install dependencies
+      ansible.builtin.package:
+        name: npm
+        state: present
+
+    - name: copy cart repo
+      ansible.builtin.copy:
+        name: cart repo
+        dest: /etc/systemd/system/cart.service
+
+    - name: Just force systemd to reread configs (2.4 and above)
+      ansible.builtin.systemd_service:
+         daemon_reload: true
+
+    - name: service start and enable
+      ansible.builtin.service:
+       name: cart
+       enabled: true
+       state: restarted
