@@ -26,9 +26,10 @@
         path: /app
         state: absent    
 
-    - name: creating app directory
+    - name: create app directory
       ansible.builtin.file:
         path: /app
+        state: directory
 
     - name: Downloading application code
       ansible.builtin.get_url:
