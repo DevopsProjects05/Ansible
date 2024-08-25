@@ -65,7 +65,7 @@
       name: mongodb-org-shell
 
   - name: get the categories count
-     ansible.builtin.command:  mongo --host mongodb.practicedevopsproject.online --quiet --eval 'db = db.getSiblingDB("catalogue"); db.products.count()'
+     ansible.builtin.command: mongo --host mongodb.practicedevopsproject.online --quiet --eval 'db = db.getSiblingDB("catalogue"); db.products.count()'
      register: product_count
 
   - name: load schema
