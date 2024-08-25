@@ -26,6 +26,7 @@
       ansible.builtin.unarchive:
         src: unzip /tmp/web.zip
         dest: /usr/share/nginx/html 
+        remote_src: yes
 
     - name: roboshop configuration 
       ansible.builtin.copy:
