@@ -64,7 +64,7 @@
     ansible.builtin.package:
       name: mongodb-org-shell
 
-   - name: get the categories count
+  - name: get the categories count
      ansible.builtin.command:  mongo --host mongodb.practicedevopsproject.online --quiet --eval 'db = db.getSiblingDB("catalogue"); db.products.count()'
      register: product_count
 
