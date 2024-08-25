@@ -52,7 +52,7 @@
   - name: enable and start  
     ansible.builtin.service:
       enabled: yes
-      state: start
+      state: started
 
   - name: copy client   
     ansible.builtin.copy:
