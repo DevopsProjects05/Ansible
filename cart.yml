@@ -49,7 +49,7 @@
 
     - name: copy cart repo
       ansible.builtin.copy:
-        name: cart repo
+        src: cart repo
         dest: /etc/systemd/system/cart.service
 
     - name: Just force systemd to reread configs (2.4 and above)
