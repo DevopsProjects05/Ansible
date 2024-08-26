@@ -1,82 +1,80 @@
 - name: catalogue
   hosts: catalogue
-  become: true
+  become: yes
   tasks:
-  - name: Disable node js
-    ansible.builtin.command:
-      cmd: dnf module disable nodejs -y 
-  
-  - name: Disable node js
-    ansible.builtin.command:
-      cmd: dnf module enable nodejs:18 -y
+  - name: disable old nodejs and enable nodejs
+    ansible.builtin.shell: dnf module disable nodejs -y ; dnf module enable nodejs:18 -y
 
-  - name: install nginx
-    ansible.builtin.package:
-      name: nginx
+  - name: Install nodejs
+    ansible.builtin.dnf:
+      name: nodejs 
       state: present
 
-  - name: add Roboshop user
+  - name: create roboshop user
     ansible.builtin.user:
       name: roboshop
 
-  - name: creating directory
+  - name: Recursively remove app directory
     ansible.builtin.file:
       path: /app
-      state: directory 
+      state: absent
 
-  - name: downloading the application code
+  - name: create app directory
+    ansible.builtin.file:
+      path: /app
+      state: directory
+
+  - name: download catalogue application
     ansible.builtin.get_url:
       url: https://roboshop-builds.s3.amazonaws.com/catalogue.zip
-      dest: /tmp/catalogue.zip
+      dest: /tmp
 
-  - name: extracting file
+  - name: extract catalogue application
     ansible.builtin.unarchive:
       src: /tmp/catalogue.zip
-      dest: /app 
+      dest: /app
       remote_src: yes
 
-  - name: install dependencies
-    ansible.builtin.package:
-      name: npm
-      state: present
+  - name: Install dependencies
+    ansible.builtin.command: npm install
+    args:
+      chdir: /app
 
-  - name: copy catalogue repo 
+  - name: Copy catalogue service
     ansible.builtin.copy:
       src: catalogue repo
       dest: /etc/systemd/system/catalogue.service
 
-  - name: Reload systemd daemon
-    ansible.builtin.systemd:
+  - name: deamon realod and start
+    ansible.builtin.systemd_service:
       daemon_reload: true
 
-  - name: enable and start  
-    ansible.builtin.service:
-      name: catalogue
-      enabled: yes
-      state: started
+  # let's start after the data is loaded
 
-  - name: copy client   
+  - name: Copy mongodb repo
     ansible.builtin.copy:
-      src: mongo client
-      dest: /etc/yum.repos.d/mongo.repo
+      src: mongo repo
+      dest: /etc/yum.repos.d/mongodb.repo
 
-  - name: install shell
+  - name: Install mongodb client
     ansible.builtin.package:
       name: mongodb-org-shell
+      state: present
 
-  - name: Get the categories count
-    ansible.builtin.command: 
-     cmd: mongo --host mongodb.practicedevopsproject.online --quiet --eval 'db=db.getSiblingDB("catalogue"); db.products.count()'
+  - name: get the categories count
+    ansible.builtin.command:  mongo --host mongodb.daws76s.online --quiet --eval 'db = db.getSiblingDB("catalogue"); db.products.count()'
     register: product_count
 
-  - name: load schema
-    ansible.builtin.command:
-      cmd: mongo --host mongodb.practicedevopsproject.online < /app/schema/catalogue.js
-    when: product_count.stdout == "0"
+  # - name: print the count
+  #   ansible.builtin.debug:
+  #     msg: "product count: {{product_count}}"
+
+  - name: load catalogue data
+    ansible.builtin.command: mongo --host mongodb.daws76s.online < /app/schema/catalogue.js
+    when: product_count.stdout == "0" # keep double quotes
 
   - name: start and enable catalogue
     ansible.builtin.service:
       name: catalogue
       state: restarted
       enabled: yes
-    
